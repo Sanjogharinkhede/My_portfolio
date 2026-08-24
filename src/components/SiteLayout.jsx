@@ -1,6 +1,7 @@
 import { ArrowUpRight, Menu, Phone, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import SitePulse from '../features/SitePulse.jsx'
 import ConsentBanner from '../features/ConsentBanner.jsx'
 
@@ -16,7 +17,13 @@ const links = [
 
 function SiteLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const location = useLocation()
   const closeMenu = () => setMenuOpen(false)
+
+  useEffect(() => {
+    const label = links.find(([, href]) => href === location.pathname)?.[0]
+    document.title = label ? `${label} | Sanjog Harinkhede` : 'Sanjog Harinkhede | Java Full Stack Developer'
+  }, [location.pathname])
 
   return <div className="site-shell">
     <header className="site-header">

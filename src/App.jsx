@@ -1,6 +1,7 @@
 import { ArrowUpRight, BriefcaseBusiness, Code2, ExternalLink, GitBranch, Mail, MapPin, Menu, Phone, Sparkles, UsersRound, X } from 'lucide-react'
-import { useState } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { loadAnalytics, trackPageView } from './lib/analytics.js'
 import './App.css'
 import DetailPage from './pages/DetailPage.jsx'
 import { BriefingPage, ConnectPage } from './features/FeaturePage.jsx'
@@ -66,13 +67,22 @@ function PortfolioHome() {
 }
 
 function App() {
-  return <BrowserRouter><Routes>
+  return <BrowserRouter><AnalyticsBridge /><Routes>
     <Route path="/" element={<PortfolioHome />} />
     {['about', 'experience', 'skills', 'projects', 'resume'].map((page) => <Route key={page} path={`/${page}`} element={<SiteLayout><DetailPage page={page} /></SiteLayout>} />)}
     <Route path="/briefing" element={<SiteLayout><BriefingPage /></SiteLayout>} />
     <Route path="/connect" element={<SiteLayout><ConnectPage /></SiteLayout>} />
     <Route path="*" element={<PortfolioHome />} />
   </Routes></BrowserRouter>
+}
+
+function AnalyticsBridge() {
+  const location = useLocation()
+  useEffect(() => {
+    loadAnalytics()
+    trackPageView(`${location.pathname}${location.search}`)
+  }, [location.pathname, location.search])
+  return null
 }
 
 export default App

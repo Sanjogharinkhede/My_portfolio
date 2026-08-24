@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sanjog-portfolio.pages.dev/sitemap.xml

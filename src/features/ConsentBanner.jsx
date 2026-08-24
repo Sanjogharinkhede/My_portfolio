@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { setAnalyticsConsent, getAnalyticsConsent } from '../lib/analytics.js'
+import { loadAnalytics, setAnalyticsConsent, getAnalyticsConsent } from '../lib/analytics.js'
 import './ConsentBanner.css'
 
 function ConsentBanner() {
@@ -8,6 +8,7 @@ function ConsentBanner() {
 
   const choose = (granted) => {
     setAnalyticsConsent(granted)
+    if (granted) loadAnalytics()
     setVisible(false)
   }
 
