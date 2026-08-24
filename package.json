@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "deploy:pages": "npm run build && wrangler pages deploy dist --project-name=sanjog-portfolio",
     "preview": "vite preview"
   },
   "dependencies": {

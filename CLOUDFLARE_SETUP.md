@@ -6,6 +6,22 @@
 - Build command: `npm run build`
 - Output directory: `dist`
 - The `public/_redirects` file preserves React routes such as `/about` and `/briefing` on direct visits.
+- Deploy this project with `wrangler pages deploy dist`, not `wrangler deploy`. The latter expects a Worker script or Worker assets directory and causes the missing entry-point error.
+
+### Manual Pages Deployment
+
+From `my_portfoio`, run:
+
+```powershell
+npm install
+npm run deploy:pages
+```
+
+If the Pages project uses a different name, replace `sanjog-portfolio` in `package.json` or run:
+
+```powershell
+npx wrangler pages deploy dist --project-name=YOUR_PAGES_PROJECT_NAME
+```
 
 ## Required Bindings
 
