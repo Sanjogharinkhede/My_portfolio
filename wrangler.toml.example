@@ -1,0 +1,16 @@
+name = "sanjog-portfolio"
+pages_build_output_dir = "dist"
+
+# Replace placeholder IDs with the IDs from Cloudflare Dashboard before using Wrangler.
+[[kv_namespaces]]
+binding = "SITE_PULSE_KV"
+id = "replace-with-kv-namespace-id"
+
+[[d1_databases]]
+binding = "AI_QUOTA_DB"
+database_name = "sanjog-ai-quota"
+database_id = "replace-with-d1-database-id"
+
+[vars]
+GEMINI_MODEL = "gemini-3.6-flash"
+CONTACT_RECIPIENT = "sanjogharinkhede@gmail.com"
