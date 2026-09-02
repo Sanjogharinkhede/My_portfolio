@@ -3,6 +3,16 @@ const MAX_FOCUS_ID = 80
 const REQUEST_CAP = 25
 const TOKEN_CAP = 17500
 const TOKEN_RESERVATION = 700
+const briefingResponseSchema = {
+  type: 'OBJECT',
+  properties: {
+    roleMatch: { type: 'STRING' },
+    engineeringLens: { type: 'STRING' },
+    interviewPrompts: { type: 'ARRAY', items: { type: 'STRING' } },
+    contributionPlan: { type: 'ARRAY', items: { type: 'STRING' } },
+  },
+  required: ['roleMatch', 'engineeringLens', 'interviewPrompts', 'contributionPlan'],
+}
 
 const portfolioContext = `
 Sanjog Harinkhede is a Java Full Stack Developer with 2+ years of experience.
@@ -70,7 +80,7 @@ export async function onRequestPost(context) {
     const providerResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${context.env.GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json', temperature: 0.2, maxOutputTokens: 700 } }),
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json', responseSchema: briefingResponseSchema, temperature: 0.2, maxOutputTokens: 900 } }),
     })
     if (!providerResponse.ok) {
       let providerError = 'unknown-provider-error'
@@ -85,7 +95,11 @@ export async function onRequestPost(context) {
     const text = providerData?.candidates?.[0]?.content?.parts?.[0]?.text
     logProviderResponse(context, model, providerData, text)
     const result = parseProviderJson(text)
-    if (!result || typeof result.roleMatch !== 'string' || typeof result.engineeringLens !== 'string' || !Array.isArray(result.interviewPrompts) || !Array.isArray(result.contributionPlan)) return json({ error: 'Briefing response could not be validated.' }, 502)
+    const validResult = result && typeof result.roleMatch === 'string' && typeof result.engineeringLens === 'string' && Array.isArray(result.interviewPrompts) && Array.isArray(result.contributionPlan) && result.interviewPrompts.every((item) => typeof item === 'string') && result.contributionPlan.every((item) => typeof item === 'string')
+    if (!validResult) {
+      console.error('Gemini response validation failed', { hasText: typeof text === 'string', parsedObject: Boolean(result), keys: result && typeof result === 'object' ? Object.keys(result).slice(0, 8) : [] })
+      return json({ error: 'Briefing response could not be validated.' }, 502)
+    }
     return json(result)
   } catch (error) {
     console.error('Gemini provider request exception', { reason: error instanceof Error ? error.name : 'unknown-error', model })
