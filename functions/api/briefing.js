@@ -40,10 +40,10 @@ export async function onRequestPost(context) {
   const quota = await reserveQuota(context.env.AI_QUOTA_DB)
   if (!quota.reserved) return json({ error: quota.reason === 'capacity-reached' ? 'Daily briefing capacity has been reached.' : 'Briefing capacity is not configured.' }, 503)
 
+  const model = context.env.GEMINI_MODEL ? context.env.GEMINI_MODEL : 'gemini-3.6-flash'
   const prompt = `Return JSON with exactly these keys: roleMatch (string), engineeringLens (string), interviewPrompts (array of strings), contributionPlan (array of strings). Ground every factual statement only in this context.\nContext:\n${portfolioContext}\nFocus: ${input.focusId}\nRole description: ${input.jobDescription}`
 
   try {
-    const model = context.env.GEMINI_MODEL ? context.env.GEMINI_MODEL : 'gemini-3.6-flash'
     const providerResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${context.env.GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
