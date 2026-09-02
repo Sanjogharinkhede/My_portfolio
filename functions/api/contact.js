@@ -13,14 +13,16 @@ export async function onRequestPost(context) {
   try { input = await context.request.json() } catch { return json({ error: 'Invalid request.' }, 400) }
   const name = typeof input?.name === 'string' ? input.name.trim() : ''
   const email = typeof input?.email === 'string' ? input.email.trim() : ''
+  const companyOrRole = typeof input?.companyOrRole === 'string' ? input.companyOrRole.trim() : ''
+  const subject = typeof input?.subject === 'string' ? input.subject.trim() : ''
   const message = typeof input?.message === 'string' ? input.message.trim() : ''
-  if (!name || name.length > 120 || !validEmail(email) || !message || message.length > 1500 || input?.consentAccepted !== true) return json({ error: 'Please check the required contact fields.' }, 400)
+  if (!name || name.length > 120 || !validEmail(email) || companyOrRole.length > 160 || !['Hiring opportunity', 'Project collaboration', 'Technical question', 'General hello'].includes(subject) || !message || message.length > 1500 || input?.consentAccepted !== true) return json({ error: 'Please check the required contact fields.' }, 400)
 
   try {
     const providerResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { Authorization: `Bearer ${context.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: context.env.CONTACT_FROM, to: [context.env.CONTACT_RECIPIENT], reply_to: email, subject: `Portfolio inquiry from ${name}`, text: `Name: ${name}\nEmail: ${email}\n\n${message}` }),
+      body: JSON.stringify({ from: context.env.CONTACT_FROM, to: [context.env.CONTACT_RECIPIENT], reply_to: email, subject: `${subject} from ${name}`, text: `Name: ${name}\nEmail: ${email}\nCompany or role: ${companyOrRole || 'Not provided'}\nSubject: ${subject}\n\n${message}` }),
     })
     if (!providerResponse.ok) return json({ error: 'Contact delivery is temporarily unavailable.' }, 503)
     return json({ status: 'sent' })

@@ -64,6 +64,15 @@ async function reserveQuota(db) {
   return { reserved: result.meta.changes === 1, reason: result.meta.changes === 1 ? 'reserved' : 'capacity-reached' }
 }
 
+async function getQuotaStatus(db) {
+  if (!db) return { available: false, error: 'Briefing capacity is not configured.' }
+  const day = new Date().toISOString().slice(0, 10)
+  const row = await db.prepare('SELECT requests, tokens FROM ai_quota WHERE day = ?').bind(day).first()
+  const requests = Number(row?.requests) || 0
+  const tokens = Number(row?.tokens) || 0
+  return { usedRequests: requests, requestCap: REQUEST_CAP, remainingRequests: Math.max(REQUEST_CAP - requests, 0), usedTokens: tokens, tokenCap: TOKEN_CAP, available: requests < REQUEST_CAP && tokens < TOKEN_CAP }
+}
+
 export async function onRequestPost(context) {
   if (!context.env.GEMINI_API_KEY) return json({ error: 'Briefing service is not configured.' }, 503)
 
@@ -105,4 +114,8 @@ export async function onRequestPost(context) {
     console.error('Gemini provider request exception', { reason: error instanceof Error ? error.name : 'unknown-error', model })
     return json({ error: 'Briefing provider is temporarily unavailable.' }, 503)
   }
+}
+
+export async function onRequestGet(context) {
+  return json(await getQuotaStatus(context.env.AI_QUOTA_DB))
 }
