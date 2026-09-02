@@ -23,6 +23,29 @@ function parseInput(value) {
   return { focusId, jobDescription }
 }
 
+function parseProviderJson(text) {
+  if (typeof text !== 'string') return null
+  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
+  try { return JSON.parse(cleaned) } catch {
+    const start = cleaned.indexOf('{')
+    const end = cleaned.lastIndexOf('}')
+    if (start < 0 || end <= start) return null
+    try { return JSON.parse(cleaned.slice(start, end + 1)) } catch { return null }
+  }
+}
+
+function logProviderResponse(context, model, response, text) {
+  const mode = context.env.GEMINI_DEBUG_LOGS || 'metadata'
+  const candidate = response?.candidates?.[0]
+  console.log('Gemini provider response', {
+    model,
+    candidateCount: Array.isArray(response?.candidates) ? response.candidates.length : 0,
+    finishReason: candidate?.finishReason || 'unknown',
+    responseLength: typeof text === 'string' ? text.length : 0,
+  })
+  if (mode === 'preview' && typeof text === 'string') console.log('Gemini response preview', text.slice(0, 1200))
+}
+
 async function reserveQuota(db) {
   if (!db) return { reserved: false, reason: 'quota-not-configured' }
   const day = new Date().toISOString().slice(0, 10)
@@ -60,7 +83,8 @@ export async function onRequestPost(context) {
     }
     const providerData = await providerResponse.json()
     const text = providerData?.candidates?.[0]?.content?.parts?.[0]?.text
-    const result = JSON.parse(text)
+    logProviderResponse(context, model, providerData, text)
+    const result = parseProviderJson(text)
     if (!result || typeof result.roleMatch !== 'string' || typeof result.engineeringLens !== 'string' || !Array.isArray(result.interviewPrompts) || !Array.isArray(result.contributionPlan)) return json({ error: 'Briefing response could not be validated.' }, 502)
     return json(result)
   } catch (error) {
