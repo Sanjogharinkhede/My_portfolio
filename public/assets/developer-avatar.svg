@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 620" role="img" aria-labelledby="title desc">
+  <title id="title">Standard bearded developer avatar</title>
+  <desc id="desc">An original neutral illustration of a bearded developer in a blue shirt.</desc>
+  <path fill="#e4ebe3" d="M34 176 392 76l-28 452L18 586Z"/>
+  <ellipse cx="225" cy="572" rx="173" ry="30" fill="#c8d6cc"/>
+  <path fill="#1769e0" d="M102 597c9-119 53-183 123-183s119 64 128 183Z"/>
+  <path fill="#0f55bd" d="M177 432h96l-15 165h-66Z"/>
+  <path fill="#c77e55" d="M143 191c0-83 47-130 111-130s109 47 109 130v105c0 71-45 119-109 119s-111-48-111-119Z"/>
+  <path fill="#263432" d="M137 199c-2-104 45-154 122-154 77 0 116 54 113 151l-28-50-45-8-66-36-48 46Z"/>
+  <path fill="#263432" d="M165 277c8 84 37 119 89 119 50 0 78-35 88-119l-25 15-22 82-41 27-43-27-23-82Z"/>
+  <ellipse cx="208" cy="229" rx="8" ry="11" fill="#192426"/>
+  <ellipse cx="300" cy="229" rx="8" ry="11" fill="#192426"/>
+  <path fill="none" stroke="#9b573d" stroke-linecap="round" stroke-width="7" d="M246 251c-4 15-5 27 2 35"/>
+  <path fill="#192426" d="M224 304c14 12 43 12 57 0-4 27-51 27-57 0Z"/>
+  <path fill="#c77e55" d="M178 404h146l-18 46-56 35-55-35Z"/>
+  <path fill="#fbfcf8" d="m226 447 24 32 24-32 22 150h-91Z"/>
+  <path fill="#1769e0" d="m168 464 82 67 83-67 30 133H137Z"/>
+  <path fill="#8eb9ff" d="m250 531 18 25-18 34-18-34Z"/>
+  <path fill="#f4f6f1" d="M182 480h34v19h-34Zm102 0h-34v19h34Z"/>
+  <path fill="#263432" d="M167 179c28 10 68 5 111-18 21-11 44-11 68 1l-8-42-42-26-65-31-57 53Z"/>
+</svg>

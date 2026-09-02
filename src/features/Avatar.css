@@ -1,0 +1,2 @@
+.avatar-image { position: absolute; z-index: 2; bottom: 8%; left: 25%; width: 310px; height: 423px; object-fit: contain; }
+@media (max-width: 800px) { .avatar-image { left: 18%; width: 285px; height: 394px; } }
