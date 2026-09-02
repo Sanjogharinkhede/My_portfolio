@@ -11,12 +11,13 @@ function BriefingPage() {
   const [jobDescription, setJobDescription] = useState('')
   const [status, setStatus] = useState('idle')
   const [result, setResult] = useState(null)
+  const geminiEnabled = import.meta.env.VITE_ENABLE_GEMINI === 'true'
 
   const submitBriefing = async (event) => {
     event.preventDefault()
     if (!focus && !jobDescription.trim()) return
     setStatus('loading')
-    if (import.meta.env.VITE_ENABLE_GEMINI !== 'true') {
+    if (!geminiEnabled) {
       window.setTimeout(() => setStatus('preview'), 550)
       return
     }
@@ -31,7 +32,7 @@ function BriefingPage() {
 
   return (
     <main className="feature-page page-grid">
-      <section className="feature-hero"><div className="feature-icon"><Sparkles size={25} /></div><div><p className="eyebrow">04 / Gemini Career Briefing Room</p><h1>Make the role<br /><em>specific.</em></h1><p>Turn a role focus into an evidence-led view of relevant experience, engineering thinking, interview prompts, and a proposed first 90 days.</p></div><div className="capacity-badge"><span>AI CAPACITY</span><strong>25 briefings / day</strong><small>Local preview mode</small></div></section>
+      <section className="feature-hero"><div className="feature-icon"><Sparkles size={25} /></div><div><p className="eyebrow">04 / Gemini Career Briefing Room</p><h1>Make the role<br /><em>specific.</em></h1><p>Turn a role focus into an evidence-led view of relevant experience, engineering thinking, interview prompts, and a proposed first 90 days.</p></div><div className="capacity-badge"><span>AI CAPACITY</span><strong>25 briefings / day</strong><small>{geminiEnabled ? 'Live endpoint enabled' : 'Local preview mode'}</small></div></section>
       <section className="feature-grid">
         <form className="feature-form" onSubmit={submitBriefing}><label>Choose a focus<select value={focus} onChange={(event) => setFocus(event.target.value)}>{focusOptions.map((option) => <option key={option}>{option}</option>)}</select></label><div className="form-divider">or add a role description</div><label>Job description <span className="optional">optional</span><textarea value={jobDescription} onChange={(event) => setJobDescription(event.target.value)} maxLength={3000} placeholder="Paste a non-confidential role description..." /><small className="character-count">{jobDescription.length} / 3000</small></label><p className="privacy-note">Do not submit confidential, proprietary, or personal information.</p><button className="button button-dark" type="submit" disabled={status === 'loading'}>{status === 'loading' ? 'Preparing briefing...' : 'Create briefing'} <ArrowUpRight size={17} /></button></form>
         <div className="briefing-result">{status === 'idle' && <div className="empty-feature"><Sparkles size={21} /><h2>Your briefing will appear here.</h2><p>Select a focus to preview the structured report. Gemini will use only approved public portfolio content.</p></div>}{status === 'loading' && <div className="empty-feature"><div className="loading-line" /><div className="loading-line short" /><div className="loading-line" /><p>Preparing an evidence-led briefing...</p></div>}{status === 'error' && <div className="empty-feature"><Sparkles size={21} /><h2>Briefing temporarily unavailable.</h2><p>{result?.error} Retry when the protected Gemini service is ready.</p></div>}{(status === 'preview' || status === 'success') && <div className="report-preview"><div className="report-heading"><span>ROLE MATCH / {status === 'preview' ? 'PREVIEW' : 'LIVE'}</span><CheckCircle2 size={19} /></div><h2>{status === 'success' ? 'Briefing ready' : 'Backend engineering'}</h2><p>{result?.roleMatch || 'Relevant experience includes Java, Spring Boot, REST APIs, Python automation, distributed troubleshooting, and delivery in Docker and Kubernetes environments.'}</p><div className="report-list"><span>Engineering lens <b>{result?.engineeringLens || 'Structured API and root-cause thinking'}</b></span><span>Interview prompts <b>{result?.interviewPrompts?.[0] || 'Evidence-led discussion starters'}</b></span><span>30 / 60 / 90 plan <b>{result?.contributionPlan?.[0] || 'Proposal based on the selected focus'}</b></span></div><small className="preview-label">{status === 'success' ? 'Grounded response · validated by the protected endpoint' : 'Local preview · protected Gemini endpoint will connect when configured'}</small></div>}</div>

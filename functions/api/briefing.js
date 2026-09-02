@@ -49,13 +49,22 @@ export async function onRequestPost(context) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: 'application/json', temperature: 0.2, maxOutputTokens: 700 } }),
     })
-    if (!providerResponse.ok) return json({ error: 'Briefing provider is temporarily unavailable.' }, 503)
+    if (!providerResponse.ok) {
+      let providerError = 'unknown-provider-error'
+      try {
+        const details = await providerResponse.json()
+        providerError = details?.error?.status || details?.error?.code || providerError
+      } catch { /* Keep provider diagnostics out of the public response. */ }
+      console.error('Gemini provider request failed', { status: providerResponse.status, reason: providerError, model })
+      return json({ error: 'Briefing provider is temporarily unavailable.' }, 503)
+    }
     const providerData = await providerResponse.json()
     const text = providerData?.candidates?.[0]?.content?.parts?.[0]?.text
     const result = JSON.parse(text)
     if (!result || typeof result.roleMatch !== 'string' || typeof result.engineeringLens !== 'string' || !Array.isArray(result.interviewPrompts) || !Array.isArray(result.contributionPlan)) return json({ error: 'Briefing response could not be validated.' }, 502)
     return json(result)
-  } catch {
+  } catch (error) {
+    console.error('Gemini provider request exception', { reason: error instanceof Error ? error.name : 'unknown-error', model })
     return json({ error: 'Briefing provider is temporarily unavailable.' }, 503)
   }
 }
